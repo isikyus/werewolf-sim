@@ -137,6 +137,11 @@ class Game
   end
 
   def log_state(message)
+    unless @logged_headings
+      puts (0...@players.length).map { |i| printf("%-2d ", i) }.join
+      @logged_headings = true
+    end
+
     statuses = @players.map do |player|
       letter = if player.alive?
         letter = player.class.name.chars.first

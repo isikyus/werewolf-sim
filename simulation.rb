@@ -1,12 +1,20 @@
 require "./game"
+require "optparse"
+
+OptionParser.new do |opts|
+  opts.on('-i', '--iterations ITERATIONS', 'Number of iterations to run') do |iterations|
+          @iterations = iterations.to_i
+  end
+end.parse!
+
 
 outcome = {
   werewolf_win: 0,
   villagers_win: 0
 }
 
-
-10000.times do |t|
+@iterations ||= 10_000
+@iterations.times do |t|
   @players = []
   3.times do
     @players << Werewolf.new

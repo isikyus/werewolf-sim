@@ -5,15 +5,23 @@
 # werewolf/villager status is known.
 
 module Voting
-  class Yes 
+  class Yes
     def call(_, _)
       true
+    end
+
+    def name
+      'always-yes'
     end
   end
 
   class Random
     def call(_, _)
       rand < 0.5
+    end
+
+    def name
+      'random'
     end
   end
 

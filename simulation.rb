@@ -41,5 +41,5 @@ vote_trials.each do |villager_voting, werewolf_voting|
     outcome[Game.new(@players).run(@verbose)] += 1
   end
 
-  puts "#{villager_voting.class.name} villagers vs #{werewolf_voting.class.name} werewolves: #{outcome.inspect}"
+  puts "#{villager_voting.name} villagers vs #{werewolf_voting.name} werewolves: #{outcome.inspect}"
 end

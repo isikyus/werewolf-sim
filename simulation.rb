@@ -12,15 +12,16 @@ OptionParser.new do |opts|
   end
 end.parse!
 
-
-outcome = {
-  werewolf_win: 0,
-  villagers_win: 0
-}
+@iterations ||= 10_000
 
 vote_trials = Voting::ALL.product(Voting::ALL)
 vote_trials.each do |villager_voting, werewolf_voting|
-  @iterations ||= 10_000
+
+  outcome = {
+    werewolf_win: 0,
+    villagers_win: 0
+  }
+
   @iterations.times do |t|
     @players = []
     3.times do

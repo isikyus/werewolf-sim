@@ -14,32 +14,49 @@ end.parse!
 
 @iterations ||= 10_000
 
-vote_trials = Voting::ALL.product(Voting::ALL)
-vote_trials.each do |villager_voting, werewolf_voting|
+results = Voting::ALL.map do |villager_voting|
+  Voting::ALL.map do |werewolf_voting|
 
-  outcome = {
-    werewolf_win: 0,
-    villagers_win: 0
-  }
+    outcome = {
+      werewolf_win: 0,
+      villagers_win: 0
+    }
 
-  @iterations.times do |t|
-    @players = []
-    3.times do
-      @players << Werewolf.new(voting: werewolf_voting)
+    @iterations.times do |t|
+      @players = []
+      3.times do
+        @players << Werewolf.new(voting: werewolf_voting)
+      end
+
+      villager_count = 12
+      @players << Seer.new(strategy: AnyWerewolf, voting: villager_voting)
+
+      @players << Hunter.new(voting: villager_voting)
+      @players << Cupid.new(voting: villager_voting)
+
+      (villager_count - 3).times do
+        @players << Villager.new(voting: villager_voting)
+      end
+
+      outcome[Game.new(@players).run(@verbose)] += 1
     end
 
-    villager_count = 12
-    @players << Seer.new(strategy: AnyWerewolf, voting: villager_voting)
-
-    @players << Hunter.new(voting: villager_voting)
-    @players << Cupid.new(voting: villager_voting)
-
-    (villager_count - 3).times do
-      @players << Villager.new(voting: villager_voting)
-    end
-
-    outcome[Game.new(@players).run(@verbose)] += 1
+    outcome
   end
+end
 
-  puts "#{villager_voting.name} villagers vs #{werewolf_voting.name} werewolves: #{outcome.inspect}"
+# Show a table of results, and a key
+headers = ['villager_voting', 'worst score', *0...Voting::ALL.length]
+rows = [ headers ]
+results.each_with_index do |result_row, index|
+  villager_scores = result_row.map { |outcome| outcome[:villagers_win] }
+  rows << [index, villager_scores.min, *villager_scores]
+end
+
+puts rows.map { |r| r.join(' ') }
+
+puts
+puts "Voting Systems by ID:"
+Voting::ALL.each_with_index do |system, index|
+  puts "#{index}: #{system.name}"
 end

@@ -3,7 +3,11 @@ require "optparse"
 
 OptionParser.new do |opts|
   opts.on('-i', '--iterations ITERATIONS', 'Number of iterations to run') do |iterations|
-          @iterations = iterations.to_i
+    @iterations = iterations.to_i
+  end
+
+  opts.on('-v', '--verbose', 'Output more details of each run') do
+    @verbose = true
   end
 end.parse!
 
@@ -30,7 +34,7 @@ outcome = {
     @players << Villager.new
   end
 
-  outcome[Game.new(@players).run] += 1
+  outcome[Game.new(@players).run(@verbose)] += 1
 end
 
 puts outcome.inspect

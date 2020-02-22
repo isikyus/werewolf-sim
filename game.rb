@@ -112,18 +112,44 @@ class Game
     @players = players
   end
 
-  def run
+  def run(verbose=false)
     while !game_over? do
       eaten_villager = eat_a_villager
+      log_state("ate villager") if verbose
+
       identify_someone if seer
       if eaten_villager.is_a?(Hunter)
         lynch_someone(hunter_killing: true)
+        log_state("hunter killed") if verbose
       end
+
       seer_reveals! if seer && seer.should_reveal?(alive_players)
       lynch_someone
+
+      log_state("lynched") if verbose
     end
 
     @outcome
+  end
+
+  def log_state(message)
+    statuses = @players.map do |player|
+      if player.alive?
+        letter = player.class.name.chars.first
+        state_symbol = if player.condemned?
+                         '!'
+                       elsif player.identified?
+                         '*'
+                       else
+                         ' '
+                       end
+        letter + state_symbol
+      else
+        '- '
+      end
+    end
+
+    puts "#{statuses.join(' ')} #{message}"
   end
 
   def seer

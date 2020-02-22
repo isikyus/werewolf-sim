@@ -116,6 +116,10 @@ class Werewolf < Villager
   def werewolf?
     true
   end
+
+  def vote(nominee)
+    voting.(nominee, true)
+  end
 end
 
 class Game

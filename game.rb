@@ -214,12 +214,12 @@ class Game
         end
 
         safe << lynched_person
-        return lynch_someone(safe: safe)
+        return lynch_someone(safe: safe, verbose: verbose)
       end
 
       unless vote_to_lynch(lynched_person, verbose: verbose)
         safe << lynched_person
-        return lynch_someone(safe: safe)
+        return lynch_someone(safe: safe, verbose: verbose)
       end
 
       return if lynched_person.nil?

@@ -45,6 +45,10 @@ class Villager
   def die!
     @alive = false
   end
+
+  def vote(victim)
+    true
+  end
 end
 
 class Seer < Villager
@@ -124,7 +128,7 @@ class Game
       end
 
       seer_reveals! if seer && seer.should_reveal?(alive_players)
-      lynch_someone
+      lynch_someone(verbose: verbose)
 
       log_state("lynched") if verbose
     end
@@ -193,8 +197,12 @@ class Game
     villagers.select(&:condemned?)
   end
 
-  def lynch_someone(hunter_killing: false)
-    lynched_person = condemned_wolves.first || alive_players.reject(&:condemned?).sample
+  def lynching_nominee(safe: [])
+    (condemned_wolves - safe).first || (alive_players - safe).reject(&:condemned?).sample
+  end
+
+  def lynch_someone(hunter_killing: false, safe: [], verbose: false)
+    lynched_person = lynching_nominee(safe: safe)
 
     if !hunter_killing
       return if lynched_person.nil?
@@ -204,7 +212,14 @@ class Game
         if lynched_person.seer?
           seer_reveals!
         end
-         return lynch_someone
+
+        safe << lynched_person
+        return lynch_someone(safe: safe)
+      end
+
+      unless vote_to_lynch(lynched_person, verbose: verbose)
+        safe << lynched_person
+        return lynch_someone(safe: safe)
       end
 
       return if lynched_person.nil?
@@ -212,6 +227,14 @@ class Game
 
     lynched_person.die!
     lynched_person
+  end
+
+  def vote_to_lynch(lynched_person, verbose: false)
+    votes = @players.map { |p| p.vote(lynched_person) }
+
+    puts "#{votes.map { |v| v ? 'y' : 'n' }.join('  ')} vote to lynch #{@players.index(lynched_person)}" if verbose
+
+    votes.select { |vote| vote }.count > (votes.length / 2)
   end
 
   def game_over?

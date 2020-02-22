@@ -1,9 +1,10 @@
 require 'pry'
 class Villager
-  def initialize
+  def initialize(voting:)
     @alive = true
     @condemned = false
     @identified = false
+    @voting = voting
   end
 
   def alive?
@@ -46,16 +47,18 @@ class Villager
     @alive = false
   end
 
-  def vote(victim)
-    true
+  def vote(nominee)
+    voting.(nominee, nominee.condemned?)
   end
+
+  attr_reader :voting
 end
 
 class Seer < Villager
-  def initialize(strategy:)
+  def initialize(strategy:, voting:)
 
     @strategy = strategy
-    super()
+    super(voting: voting)
     identify!
   end
 
@@ -73,6 +76,10 @@ class Seer < Villager
 
   def should_reveal?(players)
     @strategy.should_reveal?(self, players)
+  end
+
+  def vote(nominee)
+    voting.(nominee, nominee.identified?)
   end
 end
 
